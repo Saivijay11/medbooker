@@ -1,0 +1,33 @@
+# macOS / editors
+.DS_Store
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Python/Django
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.py[cod]
+backend/db.sqlite3
+backend/*.sqlite3
+backend/media/
+backend/staticfiles/
+backend/.env
+backend/*.log
+
+# Node/Next.js
+patient-scheduler/node_modules/
+patient-scheduler/.next/
+patient-scheduler/out/
+patient-scheduler/.env.local
+patient-scheduler/.env
+patient-scheduler/.env.*.local
+patient-scheduler/coverage/
+patient-scheduler/.turbo/
+patient-scheduler/*.log
+
+# Lock files (keep one kind)
+# yarn.lock
+# pnpm-lock.yaml
