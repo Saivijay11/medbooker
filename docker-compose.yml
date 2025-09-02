@@ -4,13 +4,21 @@ services:
       context: .
       dockerfile: Dockerfile.api
     container_name: medbooker_api
-    command: bash -c "python manage.py migrate && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+    command: >
+      bash -lc "
+        python manage.py collectstatic --noinput &&
+        python manage.py migrate &&
+        gunicorn backend.wsgi:application -b 0.0.0.0:8000 --workers 3
+      "
     ports:
       - "8000:8000"
     env_file:
       - .env.api
     volumes:
-      - ./db.sqlite3:/app/db.sqlite3 # store SQLite here (see settings note below)
+      # keep your SQLite file on the host
+      - ./db.sqlite3:/app/db.sqlite3
+      # persist compiled static files (STATIC_ROOT=/app/staticfiles)
+      - static_data:/app/staticfiles
 
   web:
     build:
@@ -25,4 +33,4 @@ services:
       - api
 
 volumes:
-  db_data:
+  static_data:
