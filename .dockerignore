@@ -1,0 +1,8 @@
+.git
+**/__pycache__
+**/*.pyc
+venv
+.env
+db.sqlite3
+patient-scheduler/node_modules
+patient-scheduler/.next

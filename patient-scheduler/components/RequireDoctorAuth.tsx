@@ -1,9 +1,10 @@
+// components/RequireDoctorAuth.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getToken } from "../lib/auth";
-import { fetchMyDoctor } from "../lib/doctorApi";
+import { getToken } from "@/lib/auth";
+import { fetchMyDoctor } from "@/lib/doctorApi";
 
 export default function RequireDoctorAuth({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -15,16 +16,17 @@ export default function RequireDoctorAuth({ children }: { children: React.ReactN
             router.replace("/doctor/login");
             return;
         }
-        // verify token is a doctor-linked account
+        let cancelled = false;
         fetchMyDoctor()
-            .then(() => setOk(true))
+            .then(() => !cancelled && setOk(true))
             .catch(() => router.replace("/doctor/login"));
+        return () => {
+            cancelled = true;
+        };
     }, [router]);
 
     if (!ok) {
-        return (
-            <div className="py-12 text-center text-gray-600">Checking your session…</div>
-        );
+        return <div className="py-12 text-center text-gray-600">Checking your session…</div>;
     }
     return <>{children}</>;
 }

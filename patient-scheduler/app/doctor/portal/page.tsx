@@ -1,8 +1,11 @@
+// app/doctor/portal/page.tsx
 "use client";
+
 import { useEffect, useState } from "react";
-import Container from "../../../components/Container";
-import { fetchMyDoctor, fetchMySlots, createMySlot, deleteMySlot } from "../../../lib/doctorApi";
+import Container from "@/components/Container";
+import { fetchMyDoctor, fetchMySlots, createMySlot, deleteMySlot } from "@/lib/doctorApi";
 import Link from "next/link";
+import type { Route } from "next";
 
 type Slot = { id: number; start: string; end: string };
 
@@ -18,18 +21,21 @@ export default function DoctorPortal() {
             setErr(null);
             const [d, s] = await Promise.all([fetchMyDoctor(), fetchMySlots()]);
             setMe(d);
-            setSlots(Array.isArray(s) ? s : (s?.results ?? [])); // ← normalize
+            setSlots(Array.isArray(s) ? s : s?.results ?? []);
         } catch {
             setErr("Please login again.");
         }
     }
 
-    useEffect(() => { load(); }, []);
+    useEffect(() => {
+        load();
+    }, []);
 
     async function addSlot() {
         if (!start || !end) return;
         await createMySlot(new Date(start).toISOString(), new Date(end).toISOString());
-        setStart(""); setEnd("");
+        setStart("");
+        setEnd("");
         await load();
     }
 
@@ -38,14 +44,19 @@ export default function DoctorPortal() {
         await load();
     }
 
-    const slotList = Array.isArray(slots) ? slots : []; // ← guard for render
+    const slotList = Array.isArray(slots) ? slots : [];
+
+    // ✅ Make it actually typed as Route (not just `satisfies`)
+    const CAL_URL: Route = "/doctor/portal/calendar";
 
     return (
         <Container>
             <div className="py-8">
                 <div className="mb-4 flex items-center justify-between">
                     <h1 className="text-2xl font-semibold">My Availability</h1>
-                    <Link href={"/doctor/calendar"} className="btn btn-ghost">Open calendar</Link>
+                    <Link href={CAL_URL} className="btn btn-ghost">
+                        Open calendar
+                    </Link>
                 </div>
 
                 {me && (
@@ -70,17 +81,23 @@ export default function DoctorPortal() {
                             onChange={(e) => setEnd(e.target.value)}
                         />
                     </div>
-                    <button className="btn btn-primary mt-3" onClick={addSlot}>Add slot</button>
+
+                    <button className="btn btn-primary mt-3" onClick={addSlot}>
+                        Add slot
+                    </button>
 
                     <h2 className="mt-6 text-lg font-semibold">Existing slots</h2>
                     {slotList.length === 0 && <p className="text-gray-600">No slots yet.</p>}
+
                     <ul className="space-y-2 mt-2">
                         {slotList.map((s) => (
                             <li key={s.id} className="flex items-center justify-between rounded border p-3">
                                 <span className="text-sm">
                                     {new Date(s.start).toLocaleString()} — {new Date(s.end).toLocaleString()}
                                 </span>
-                                <button className="btn btn-ghost" onClick={() => removeSlot(s.id)}>Delete</button>
+                                <button className="btn btn-ghost" onClick={() => removeSlot(s.id)}>
+                                    Delete
+                                </button>
                             </li>
                         ))}
                     </ul>

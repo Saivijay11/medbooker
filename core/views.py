@@ -134,7 +134,16 @@ class MySlotsListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         doctor = require_doctor_profile(self.request.user)
-        return AvailabilitySlot.objects.filter(doctor=doctor).order_by("start")
+        # Return ONLY open slots (no pending/confirmed appointment linked)
+        return (
+            AvailabilitySlot.objects
+            .filter(doctor=doctor)
+            .exclude(appointments__status__in=[
+                Appointment.STATUS_PENDING,
+                Appointment.STATUS_CONFIRMED,
+            ])
+            .order_by("start")
+        )
 
     def create(self, request, *args, **kwargs):
         doctor = require_doctor_profile(request.user)

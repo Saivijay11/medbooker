@@ -36,5 +36,5 @@ export const fetchMyAppointments = (startISO?: string, endISO?: string) => {
     const url = new URL("/api/me/appointments/", API);
     if (startISO) url.searchParams.set("start", startISO);
     if (endISO) url.searchParams.set("end", endISO);
-    return authed(url.toString().replace(API, "")); // authed expects a path
+    return authed(url.pathname + url.search);
 };

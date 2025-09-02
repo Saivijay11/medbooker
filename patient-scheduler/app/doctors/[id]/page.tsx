@@ -7,8 +7,8 @@ import SlotPicker from "../../../components/SlotPicker";
 import CustomTimePicker from "../../../components/CustomTimePicker";
 import BookingModal from "../../../components/BookingModal";
 import { getDoctor, getAvailability, bookAppointment } from "../../../lib/api";
+import type { BookPayload } from "../../../lib/api";
 import type { AvailabilitySlot, Doctor } from "../../../types";
-
 
 export default function DoctorDetailPage() {
     const params = useParams<{ id: string }>();
@@ -56,23 +56,39 @@ export default function DoctorDetailPage() {
     async function onBook() {
         try {
             setSubmitError(null);
-            const payload =
-                tab === "SLOTS"
-                    ? {
-                        doctorId: id,
-                        mode: "AVAILABILITY" as const,
-                        availabilitySlotId: selectedSlot!.id,
-                        patient,
-                    }
-                    : {
-                        doctorId: id,
-                        mode: "ON_DEMAND" as const,
-                        start: custom.start,
-                        end: custom.end,
-                        patient,
-                    };
+
+            let payload: BookPayload;
+
+            if (tab === "SLOTS") {
+                if (!selectedSlot) throw new Error("No slot selected");
+
+                // Build AVAILABILITY payload as its own const
+                const availPayload = {
+                    doctorId: Number(id),
+                    mode: "AVAILABILITY" as const,
+                    availabilitySlotId: Number(selectedSlot.id),
+                    patient,
+                };
+
+                payload = availPayload; // satisfies BookPayload via discriminant
+            } else {
+                // Build ON_DEMAND payload as its own const
+                const onDemandPayload = {
+                    doctorId: Number(id),
+                    mode: "ON_DEMAND" as const,
+                    start: custom.start, // ensure ISO string
+                    end: custom.end,     // ensure ISO string
+                    patient,
+                };
+
+                payload = onDemandPayload; // satisfies BookPayload via discriminant
+            }
 
             await bookAppointment(payload);
+            if (tab === "SLOTS" && selectedSlot) {
+                setSlots(prev => prev.filter(s => s.id !== selectedSlot.id));
+                setSelectedSlot(null);
+            }
             setShowModal(true);
         } catch (e: any) {
             setSubmitError(e?.message || "Booking failed");
@@ -190,8 +206,8 @@ export default function DoctorDetailPage() {
                                     Book appointment
                                 </button>
                                 <p className="text-xs text-gray-500">
-                                    Confirmation will appear on screen and email will be sent by
-                                    the backend.
+                                    Confirmation will appear on screen and email will be sent
+                                    by the backend.
                                 </p>
                             </div>
                         </aside>

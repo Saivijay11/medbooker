@@ -1,29 +1,54 @@
-# macOS
+# --- OS / Editors ---
 .DS_Store
+.idea/
+.vscode/
 
-# Python / Django
+# --- Python / Django ---
 __pycache__/
 *.py[cod]
-*.sqlite3
-db.sqlite3
-.env
-.env.*
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
 .venv/
 venv/
-*.log
-.coverage
-htmlcov/
+.tox/
 .mypy_cache/
 .pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
-# Node / Next.js
+# Local DBs
+db.sqlite3
+*.sqlite3
+
+# Env files (keep examples!)
+.env
+.env.*
+!.env.example
+!.env.api
+!.env.web
+
+# Logs
+*.log
+
+# --- Next.js (patient app) ---
+patient-scheduler/node_modules/
+patient-scheduler/.next/
+patient-scheduler/out/
+patient-scheduler/.vercel/
+patient-scheduler/dist/
+patient-scheduler/build/
+patient-scheduler/.env.local
+patient-scheduler/.env.*.local
+
+# If you ever add a separate top-level node app:
 node_modules/
 .next/
 out/
 dist/
 build/
-*.local
-*.env.local
-*.env.development.local
-*.env.production.local
-*.env.test.local
+
+# --- Docker artifacts (optional) ---
+docker-*.log

@@ -1,0 +1,26 @@
+# Dockerfile.api
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# OS deps (handy for builds)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Python deps
+COPY backend/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+# Copy code
+COPY manage.py /app/manage.py
+COPY backend /app/backend
+COPY core /app/core
+
+EXPOSE 8000
+
+# Dev compose overrides this with runserver; prod uses gunicorn
+CMD ["gunicorn","backend.wsgi:application","--bind","0.0.0.0:8000","--workers","3"]
